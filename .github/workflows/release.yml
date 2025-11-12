@@ -1,0 +1,45 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Zip 'win' directory
+        run: zip -r mariadb-win.zip win
+
+      - name: Zip 'linux' directory
+        run: zip -r mariadb-linux.zip linux
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          release_name: "Release ${{ steps.tag_version.outputs.new_tag }}"
+          body: |
+            Automated release with portable MariaDB drivers.
+            - `mariadb-win.zip` contains the Windows version.
+            - `mariadb-linux.zip` contains the Linux version.
+          files: |
+            mariadb-win.zip
+            mariadb-linux.zip
