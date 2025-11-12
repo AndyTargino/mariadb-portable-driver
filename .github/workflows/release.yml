@@ -17,10 +17,12 @@ jobs:
           fetch-depth: 0
 
       - name: Zip 'win' directory
-        run: zip -r mariadb-win.zip ./win
+        run: zip -r ../mariadb-win.zip *
+        working-directory: win
 
       - name: Zip 'linux' directory
-        run: zip -r mariadb-linux.zip ./linux
+        run: zip -r ../mariadb-linux.zip *
+        working-directory: linux
 
       - name: Bump version and push tag
         id: tag_version
